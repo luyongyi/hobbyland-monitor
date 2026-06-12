@@ -3,7 +3,6 @@ name: Deploy to Server
 on:
   push:
     branches: [main]
-  # 支持手动触发，可临时改端口
   workflow_dispatch:
     inputs:
       app_port:
@@ -28,7 +27,6 @@ jobs:
           script: |
             set -e
 
-            # ---- 配置 ----
             DEPLOY_DIR="/opt/hobbyland-monitor"
             REPO_URL="https://github.com/luyongyi/hobbyland-monitor.git"
             BRANCH="main"
@@ -36,34 +34,34 @@ jobs:
             echo "=== Deploying hobbyland-monitor ==="
             echo "App port: $APP_PORT"
 
-            # 首次部署：克隆仓库
+            # 拉取最新代码
             if [ ! -d "$DEPLOY_DIR" ]; then
               echo "First deploy: cloning repo..."
               sudo git clone -b "$BRANCH" "$REPO_URL" "$DEPLOY_DIR"
-              cd "$DEPLOY_DIR"
-              sudo mkdir -p data
-              # 让 ubuntu 用户也能写 data 目录
-              sudo chown -R ubuntu:ubuntu "$DEPLOY_DIR"
+              sudo chown -R $USER:$USER "$DEPLOY_DIR"
             else
-              echo "Updating repo..."
               cd "$DEPLOY_DIR"
-              sudo git fetch origin "$BRANCH"
-              sudo git reset --hard "origin/$BRANCH"
+              git fetch origin "$BRANCH"
+              git reset --hard "origin/$BRANCH"
             fi
 
-            # 确保 data 目录存在
+            cd "$DEPLOY_DIR"
             sudo mkdir -p data
 
-            # 写入端口配置到 .env（docker-compose.yml 会读取）
+            # 同步 nginx 配置（如果 sites-available 里没有，自动部署）
+            if [ -f "infra/nginx/gundam.example.com.conf" ]; then
+              sudo cp infra/nginx/gundam.example.com.conf /etc/nginx/sites-available/gundam.example.com
+              sudo ln -sf /etc/nginx/sites-available/gundam.example.com /etc/nginx/sites-enabled/gundam.example.com
+              sudo nginx -t && sudo nginx -s reload && echo "nginx config synced"
+            fi
+
+            # 写入端口到 .env
             echo "APP_PORT=$APP_PORT" > .env
 
-            # 重建并重启容器（需要 sudo 因为 ubuntu 不在 docker 组）
+            # 重建容器
             echo "Building and restarting container on port $APP_PORT..."
             sudo docker compose up -d --build --remove-orphans
-
-            # 清理旧镜像
             sudo docker image prune -f
 
             echo "=== Deploy complete ==="
-            echo "Container listening on host port $APP_PORT"
             sudo docker compose ps
