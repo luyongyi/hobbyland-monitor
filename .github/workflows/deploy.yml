@@ -3,8 +3,13 @@ name: Deploy to Server
 on:
   push:
     branches: [main]
-  # 也支持手动触发（在 GitHub Actions 页面点 Run workflow）
+  # 支持手动触发，可临时改端口
   workflow_dispatch:
+    inputs:
+      app_port:
+        description: '容器映射到宿主机的端口'
+        required: false
+        default: '8000'
 
 jobs:
   deploy:
@@ -12,31 +17,31 @@ jobs:
     steps:
       - name: Deploy via SSH
         uses: appleboy/ssh-action@v1
+        env:
+          APP_PORT: ${{ github.event.inputs.app_port || '8000' }}
         with:
           host: ${{ secrets.SERVER_HOST }}
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.SERVER_SSH_KEY }}
-          port: ${{ secrets.SERVER_PORT || 22 }}
+          port: ${{ secrets.SERVER_SSH_PORT || 22 }}
+          envs: APP_PORT
           script: |
             set -e
 
-            # ---- 配置（按你的服务器修改）----
+            # ---- 配置 ----
             DEPLOY_DIR="/opt/hobbyland-monitor"
             REPO_URL="https://github.com/luyongyi/hobbyland-monitor.git"
             BRANCH="main"
 
             echo "=== Deploying hobbyland-monitor ==="
+            echo "App port: $APP_PORT"
 
             # 首次部署：克隆仓库
             if [ ! -d "$DEPLOY_DIR" ]; then
               echo "First deploy: cloning repo..."
               git clone -b "$BRANCH" "$REPO_URL" "$DEPLOY_DIR"
               cd "$DEPLOY_DIR"
-
-              # 创建默认配置（如果不存在）
-              if [ ! -f data/.gitkeep ]; then
-                mkdir -p data
-              fi
+              mkdir -p data
             else
               echo "Updating repo..."
               cd "$DEPLOY_DIR"
@@ -44,15 +49,19 @@ jobs:
               git reset --hard "origin/$BRANCH"
             fi
 
-            # 确保 data 目录存在（SQLite + 图片缓存）
+            # 确保 data 目录存在
             mkdir -p data
 
-            # 重建并重启容器（零停机：先 build 再 recreate）
-            echo "Building and restarting container..."
+            # 写入端口配置到 .env（docker-compose.yml 会读取）
+            echo "APP_PORT=$APP_PORT" > .env
+
+            # 重建并重启容器
+            echo "Building and restarting container on port $APP_PORT..."
             docker compose up -d --build --remove-orphans
 
-            # 清理旧镜像，释放磁盘
+            # 清理旧镜像
             docker image prune -f
 
             echo "=== Deploy complete ==="
+            echo "Container listening on host port $APP_PORT"
             docker compose ps

@@ -4,10 +4,10 @@ services:
     container_name: gundam-monitor
     restart: unless-stopped
     ports:
-      - "8000:8000"
+      - "${APP_PORT:-8000}:8000"    # 宿主机端口可配置，容器内固定 8000
     volumes:
-      - ./config:/app/config:ro      # Config file (read-only)
-      - ./data:/app/data              # SQLite database (read-write)
+      - ./config:/app/config:ro      # 配置文件（只读）
+      - ./data:/app/data              # SQLite 数据库 + 图片缓存
     environment:
       - TZ=Asia/Shanghai
       - TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN:-}
