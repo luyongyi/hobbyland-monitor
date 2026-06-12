@@ -1,0 +1,41 @@
+# Hobbyland Gundam 库存监控配置
+# 监控的商品（关注列表）现在通过 Web UI 管理，
+# 不再需要在这里配置 watched_skus。
+
+# API 设置
+api:
+  base_url: "https://backend.hobbylandeshop.com"
+  request_body:
+    category:
+      - "model_area"
+      - "gundam_zone"
+  timeout: 30
+  page_delay: 1.5          # 分页请求间隔(秒)，避免被限速
+
+# 调度设置
+scheduler:
+  scan_time: "12:00"       # 每天中午12点扫描 (HH:MM)
+  timezone: "Asia/Shanghai"
+
+# 通知设置（除了 Web UI 的告警历史，还可推送到外部通道）
+notifiers:
+  log:
+    enabled: true          # 始终开启，写入日志
+
+  telegram:
+    enabled: false
+    bot_token: ""
+    chat_id: ""
+    # 或通过环境变量 (推荐):
+    #   TELEGRAM_BOT_TOKEN=your_bot_token
+    #   TELEGRAM_CHAT_ID=your_chat_id
+
+# 提醒规则（全局开关）
+alerts:
+  back_in_stock: true      # 到货提醒（缺货→有货）
+  price_change: true       # 价格变动提醒
+  good_deal: true          # 打折好价提醒
+
+# 数据库
+database:
+  path: "data/monitor.db"

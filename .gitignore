@@ -1,0 +1,30 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+venv/
+
+# Data
+data/*.db
+data/*.db-*
+data/images/
+
+# Frontend build artifacts
+frontend/node_modules/
+frontend/dist/
+static/
+
+# Editor
+.vscode/
+.idea/
+.DS_Store
+
+# Claude
+.claude/
+
+# Project meta
+md
+
+# Env
+.env

@@ -1,0 +1,19 @@
+services:
+  monitor:
+    build: .
+    container_name: gundam-monitor
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./config:/app/config:ro      # Config file (read-only)
+      - ./data:/app/data              # SQLite database (read-write)
+    environment:
+      - TZ=Asia/Shanghai
+      - TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN:-}
+      - TELEGRAM_CHAT_ID=${TELEGRAM_CHAT_ID:-}
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
