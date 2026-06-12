@@ -1,0 +1,58 @@
+name: Deploy to Server
+
+on:
+  push:
+    branches: [main]
+  # 也支持手动触发（在 GitHub Actions 页面点 Run workflow）
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy via SSH
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SERVER_SSH_KEY }}
+          port: ${{ secrets.SERVER_PORT || 22 }}
+          script: |
+            set -e
+
+            # ---- 配置（按你的服务器修改）----
+            DEPLOY_DIR="/opt/hobbyland-monitor"
+            REPO_URL="https://github.com/luyongyi/hobbyland-monitor.git"
+            BRANCH="main"
+
+            echo "=== Deploying hobbyland-monitor ==="
+
+            # 首次部署：克隆仓库
+            if [ ! -d "$DEPLOY_DIR" ]; then
+              echo "First deploy: cloning repo..."
+              git clone -b "$BRANCH" "$REPO_URL" "$DEPLOY_DIR"
+              cd "$DEPLOY_DIR"
+
+              # 创建默认配置（如果不存在）
+              if [ ! -f data/.gitkeep ]; then
+                mkdir -p data
+              fi
+            else
+              echo "Updating repo..."
+              cd "$DEPLOY_DIR"
+              git fetch origin "$BRANCH"
+              git reset --hard "origin/$BRANCH"
+            fi
+
+            # 确保 data 目录存在（SQLite + 图片缓存）
+            mkdir -p data
+
+            # 重建并重启容器（零停机：先 build 再 recreate）
+            echo "Building and restarting container..."
+            docker compose up -d --build --remove-orphans
+
+            # 清理旧镜像，释放磁盘
+            docker image prune -f
+
+            echo "=== Deploy complete ==="
+            docker compose ps
