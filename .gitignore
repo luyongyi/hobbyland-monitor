@@ -26,5 +26,11 @@ static/
 # Project meta
 md
 
-# Env
+# Env & secrets (NEVER commit these)
 .env
+.env.local
+.env.production
+*.pem
+*.key
+id_rsa
+id_ed25519
