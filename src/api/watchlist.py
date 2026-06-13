@@ -22,7 +22,27 @@ class WatchlistItemOut(BaseModel):
     stock: int
     pic1: str | None
     watch_type: str
+    baseline_price: float | None
+    is_satisfied: bool          # 是否已达成（缺货变有货 / 原价变打折 / 价格更低）
     created_at: str
+
+
+def _is_satisfied(watch_type: str, product, baseline_price: float | None) -> bool:
+    """Determine whether a watch goal has been reached."""
+    if watch_type == "back_in_stock":
+        return product.stock > 0
+    if watch_type == "discount":
+        # 用户希望此商品打折 → 现价低于原价就算达成
+        return (
+            product.regular_price is not None
+            and product.price < product.regular_price - 0.005
+        )
+    if watch_type == "lower_price":
+        # 用户希望价格继续下降 → 比关注时的基准价更低就算达成
+        if baseline_price is None:
+            return False
+        return product.price < baseline_price - 0.005
+    return False
 
 
 class WatchlistAddRequest(BaseModel):
@@ -69,6 +89,8 @@ def list_watchlist(
             stock=product.stock,
             pic1=product.pic1,
             watch_type=item.watch_type,
+            baseline_price=item.baseline_price,
+            is_satisfied=_is_satisfied(item.watch_type, product, item.baseline_price),
             created_at=item.created_at,
         ))
 
@@ -100,6 +122,8 @@ def add_watch(req: WatchlistAddRequest, db: Session = Depends(get_db)) -> Watchl
         stock=product.stock if product else 0,
         pic1=product.pic1 if product else None,
         watch_type=item.watch_type,
+        baseline_price=item.baseline_price,
+        is_satisfied=_is_satisfied(item.watch_type, product, item.baseline_price) if product else False,
         created_at=item.created_at,
     )
 

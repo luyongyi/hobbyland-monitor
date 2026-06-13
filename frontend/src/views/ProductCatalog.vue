@@ -45,6 +45,11 @@ function totalPages() {
 
 <template>
   <div>
+    <div class="mb-4">
+      <h1 class="text-xl font-bold text-gray-800">📦 商品目录</h1>
+      <p class="text-sm text-gray-500 mt-1">浏览所有高达模型，点击「⭐ 关注」加入到我的关注</p>
+    </div>
+
     <SearchBar v-model="filters" />
 
     <div v-if="loading && products.length === 0" class="text-center py-12 text-gray-500">

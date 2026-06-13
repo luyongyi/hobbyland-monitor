@@ -56,6 +56,14 @@ def _run_migrations(engine: sa.engine.Engine) -> None:
         except OperationalError:
             pass  # Column already exists
 
+        # Add baseline_price column to watchlist if missing
+        try:
+            conn.execute(sa.text("ALTER TABLE watchlist ADD COLUMN baseline_price REAL"))
+            conn.commit()
+            logger.info("Migration: added baseline_price column to watchlist table")
+        except OperationalError:
+            pass
+
         # Migrate is_watched=1 rows into the watchlist table
         _migrate_watched_to_watchlist(conn)
 

@@ -49,9 +49,12 @@ class WatchlistRepository:
         if product is None:
             raise ValueError(f"Product with SKU {sku} not found")
 
+        # Snapshot the current price as the baseline for this watch.
+        # For lower_price watches, this is the price the user is hoping to drop below.
         item = WatchlistItem(
             sku=sku,
             watch_type=watch_type,
+            baseline_price=product.price,
             created_at=_now_iso(),
         )
         self.session.add(item)

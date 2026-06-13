@@ -60,6 +60,9 @@ class WatchlistItem(Base):
     sku: Mapped[str] = mapped_column(Text, nullable=False)
     watch_type: Mapped[str] = mapped_column(Text, nullable=False)
     # watch_type values: "back_in_stock" | "discount" | "lower_price"
+    # Snapshot of the product's price at the moment we started watching.
+    # Used to determine whether a "lower_price" watch has been satisfied.
+    baseline_price: Mapped[float | None] = mapped_column(REAL, nullable=True)
     created_at: Mapped[str] = mapped_column(Text, nullable=False)
 
     __table_args__ = (
