@@ -18,12 +18,14 @@ jobs:
         uses: appleboy/ssh-action@v1
         env:
           APP_PORT: ${{ github.event.inputs.app_port || '8000' }}
+          DOMAIN: ${{ secrets.DOMAIN }}
+          SSL_CERT_NAME: ${{ secrets.SSL_CERT_NAME }}
         with:
           host: ${{ secrets.SERVER_HOST }}
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.SERVER_SSH_KEY }}
           port: ${{ secrets.SERVER_SSH_PORT || 22 }}
-          envs: APP_PORT
+          envs: APP_PORT,DOMAIN,SSL_CERT_NAME
           script: |
             set -e
 
@@ -48,11 +50,17 @@ jobs:
             cd "$DEPLOY_DIR"
             sudo mkdir -p data
 
-            # 同步 nginx 配置（如果 sites-available 里没有，自动部署）
-            if [ -f "infra/nginx/gundam.example.com.conf" ]; then
-              sudo cp infra/nginx/gundam.example.com.conf /etc/nginx/sites-available/gundam.example.com
-              sudo ln -sf /etc/nginx/sites-available/gundam.example.com /etc/nginx/sites-enabled/gundam.example.com
+            # 同步 nginx 配置（如果设置了 DOMAIN secret）
+            if [ -n "$DOMAIN" ] && [ -f "infra/nginx/site.conf.template" ]; then
+              echo "Configuring nginx for domain: [redacted]"
+              SITE_CONF="/etc/nginx/sites-available/hobbyland-monitor"
+              sed -e "s|__DOMAIN__|${DOMAIN}|g" \
+                  -e "s|__SSL_CERT_NAME__|${SSL_CERT_NAME:-$DOMAIN}|g" \
+                  infra/nginx/site.conf.template | sudo tee "$SITE_CONF" > /dev/null
+              sudo ln -sf "$SITE_CONF" /etc/nginx/sites-enabled/hobbyland-monitor
               sudo nginx -t && sudo nginx -s reload && echo "nginx config synced"
+            else
+              echo "DOMAIN secret not set; skipping nginx config sync"
             fi
 
             # 写入端口到 .env
