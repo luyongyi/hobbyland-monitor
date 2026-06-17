@@ -126,6 +126,17 @@ class BandaiMsrpService:
         Products that do not reach the confidence threshold are marked not_found
         and can later be covered by curated overrides if needed.
         """
+        # Clean up earlier low-confidence MG auto-matches. MG has many variants,
+        # and anything below 94 should be reviewed or covered by overrides.
+        low_conf_stmt = select(Product).where(
+            Product.msrp_source == "bandai_hobby_official_mg",
+            Product.msrp_confidence < 94,
+        )
+        for p in self.session.execute(low_conf_stmt).scalars().all():
+            p.msrp_jpy = None
+            p.msrp_source = "bandai_hobby_official_mg_not_found"
+            p.official_url = None
+
         stmt = select(Product).where(
             Product.msrp_jpy.is_(None),
             or_(Product.msrp_source.is_(None), Product.msrp_source == "bandai_hobby_official_mg_not_found"),
@@ -144,7 +155,9 @@ class BandaiMsrpService:
         for product in candidates:
             product.msrp_checked_at = now
             match, confidence = self._best_match(product.title, official)
-            if match and confidence >= 88:
+            # MG has many variants and naming collisions, so require higher confidence
+            # than PG to avoid wrong MSRP assignments.
+            if match and confidence >= 94:
                 product.msrp_jpy = match.msrp_jpy
                 product.msrp_source = "bandai_hobby_official_mg"
                 product.msrp_confidence = confidence
