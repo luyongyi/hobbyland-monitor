@@ -148,6 +148,9 @@ class MonitorService:
             summary = msrp_service.enrich_pg_products()
             if summary.get("candidates"):
                 logger.info("PG MSRP enrichment: %s", summary)
+            mgex_summary = msrp_service.enrich_mgex_products()
+            if mgex_summary.get("candidates"):
+                logger.info("MGEX MSRP enrichment: %s", mgex_summary)
             mg_summary = msrp_service.enrich_mg_products()
             if mg_summary.get("candidates"):
                 logger.info("MG MSRP enrichment: %s", mg_summary)

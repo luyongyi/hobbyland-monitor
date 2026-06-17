@@ -26,6 +26,10 @@ logger = logging.getLogger(__name__)
 # Curated mappings for current Hobbyland PG products whose Chinese/HK names
 # differ too much from Bandai's Japanese titles. Values are still from the
 # official Bandai Hobby PG listing extracted by this service.
+MGEX_SKU_OVERRIDES = {
+    "4573102633682": (17050, "https://bandai-hobby.net/item/01_4230/"),  # MGEX Strike Freedom Gundam
+}
+
 MG_SKU_OVERRIDES = {
     "4573102630445": (4620, "https://bandai-hobby.net/item/01_1788/"),   # Heavyarms EW
     "4573102554567": (5720, "https://bandai-hobby.net/item/01_5837/"),   # Geara Doga
@@ -131,8 +135,57 @@ class BandaiMsrpService:
         self.session.flush()
         return {"candidates": len(candidates), "matched": matched, "official_count": len(official)}
 
+    def enrich_mgex_products(self) -> dict:
+        """Enrich MGEX products without MSRP."""
+        stmt = select(Product).where(
+            Product.msrp_jpy.is_(None),
+            or_(
+                Product.msrp_source.is_(None),
+                Product.msrp_source == "bandai_hobby_official_mgex_not_found",
+                Product.msrp_source == "bandai_hobby_official_mg_not_found",
+            ),
+            Product.title.ilike("%MGEX%"),
+        )
+        candidates = list(self.session.execute(stmt).scalars().all())
+        if not candidates:
+            return {"candidates": 0, "matched": 0, "official_count": 0}
+
+        official = self.fetch_official_products("mgex", max_pages=10)
+        matched = 0
+        now = _now_iso()
+
+        for product in candidates:
+            product.msrp_checked_at = now
+
+            if product.sku in MGEX_SKU_OVERRIDES:
+                msrp, official_url = MGEX_SKU_OVERRIDES[product.sku]
+                product.msrp_jpy = msrp
+                product.msrp_source = "bandai_hobby_official_mgex_override"
+                product.msrp_confidence = 100
+                product.official_url = official_url
+                matched += 1
+                continue
+
+            match, confidence = self._best_match(product.title, official)
+            if match and confidence >= 88:
+                product.msrp_jpy = match.msrp_jpy
+                product.msrp_source = "bandai_hobby_official_mgex"
+                product.msrp_confidence = confidence
+                product.official_url = match.detail_url
+                matched += 1
+                logger.info(
+                    "MGEX MSRP matched: %s -> %s (JP¥%s, confidence=%s)",
+                    product.sku, match.title, match.msrp_jpy, confidence,
+                )
+            else:
+                product.msrp_source = "bandai_hobby_official_mgex_not_found"
+                product.msrp_confidence = confidence if match else 0
+
+        self.session.flush()
+        return {"candidates": len(candidates), "matched": matched, "official_count": len(official)}
+
     def enrich_mg_products(self) -> dict:
-        """Enrich MG / MGEX products without MSRP.
+        """Enrich MG products without MSRP.
 
         This is the first MG pass: automatic high-confidence title matching only.
         Products that do not reach the confidence threshold are marked not_found
