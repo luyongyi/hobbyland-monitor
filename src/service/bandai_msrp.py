@@ -26,6 +26,19 @@ logger = logging.getLogger(__name__)
 # Curated mappings for current Hobbyland PG products whose Chinese/HK names
 # differ too much from Bandai's Japanese titles. Values are still from the
 # official Bandai Hobby PG listing extracted by this service.
+MG_SKU_OVERRIDES = {
+    "4573102630445": (4620, "https://bandai-hobby.net/item/01_1788/"),   # Heavyarms EW
+    "4573102554567": (5720, "https://bandai-hobby.net/item/01_5837/"),   # Geara Doga
+    "4573102630421": (5720, "https://bandai-hobby.net/item/01_1779/"),   # Epyon EW
+    "4573102567673": (4950, "https://bandai-hobby.net/item/01_2127/"),   # Dynames
+    "4573102582225": (5390, "https://bandai-hobby.net/item/01_3056/"),   # Barbatos
+    "4573102630827": (7590, "https://p-bandai.jp/item/item-1000141550/"), # 00 Raiser
+    "4573102595478": (5500, "https://bandai-hobby.net/item/01_2785/"),   # Kyrios
+    "4573102616128": (4840, "https://bandai-hobby.net/item/01_1349/"),   # F91 Ver.2.0
+    "4573102579898": (5390, "https://bandai-hobby.net/item/01_1681/"),   # Force Impulse
+    "4573102615855": (7700, "https://bandai-hobby.net/item/01_1668/"),   # Destiny Extreme Blast
+}
+
 PG_SKU_OVERRIDES = {
     "4573102630568": (29150, "https://bandai-hobby.net/item/01_2878/"),  # Strike Freedom
     "4573102638250": (16500, "https://bandai-hobby.net/item/01_803/"),   # Wing Gundam Zero Custom
@@ -154,6 +167,16 @@ class BandaiMsrpService:
 
         for product in candidates:
             product.msrp_checked_at = now
+
+            if product.sku in MG_SKU_OVERRIDES:
+                msrp, official_url = MG_SKU_OVERRIDES[product.sku]
+                product.msrp_jpy = msrp
+                product.msrp_source = "bandai_hobby_official_mg_override"
+                product.msrp_confidence = 100
+                product.official_url = official_url
+                matched += 1
+                continue
+
             match, confidence = self._best_match(product.title, official)
             # MG has many variants and naming collisions, so require higher confidence
             # than PG to avoid wrong MSRP assignments.
@@ -301,6 +324,8 @@ def normalize_title(title: str) -> str:
         "主天使": " kyrios ",
         "ヴァーチェ": " virtue ",
         "德天使": " virtue ",
+        "ダブルオーライザー": " double o raiser ",
+        "ライザー": " raiser ",
         "ダブルオー": " double o ",
         "アストレイ": " astray ",
         "迷惘": " astray ",
@@ -352,6 +377,17 @@ def normalize_title(title: str) -> str:
         "馬克兔": " mk ii ",
         "mk-ii": " mk ii ",
         "mark ii": " mk ii ",
+        "トランザム": " trans am ",
+        "trans-am": " trans am ",
+        "メタリック": " metallic ",
+        "金屬": " metallic ",
+        "金属": " metallic ",
+        "チタニウム": " titanium ",
+        "透明": " clear ",
+        "クリアカラー": " clear ",
+        "動畫配色": " anime color ",
+        "动画配色": " anime color ",
+        "限定": " limited ",
         "ledユニット": " led unit ",
         "led 組件": " led unit ",
         "led组件": " led unit ",
@@ -402,7 +438,7 @@ def _score_match(hobby_tokens: set[str], official_tokens: set[str], hobby_norm: 
         score += int(20 * len(overlap) / max(len(hobby_tokens), len(official_tokens)))
 
     # Conflict penalties: LED/extension/clear must not be mixed with body kit.
-    for special in ["led", "unit", "extension", "clear"]:
+    for special in ["led", "unit", "extension", "clear", "metallic", "titanium", "trans", "am", "limited", "anime"]:
         if (special in hobby_tokens) != (special in official_tokens):
             score -= 25
 
