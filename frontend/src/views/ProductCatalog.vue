@@ -7,6 +7,7 @@ import { getProducts } from '../api/client'
 const filters = ref({
   search: '',
   stock_filter: 'all',
+  discount_filter: 'all',
   sort_by: 'updated_at',
   sort_order: 'desc',
 })
@@ -24,6 +25,11 @@ async function load() {
       page_size: pageSize.value,
       search: filters.value.search,
       stock_filter: filters.value.stock_filter,
+      // 优惠金额/百分比排序必须与“有优惠”过滤形成 AND 关系，
+      // 避免没有优惠的商品混进结果。
+      discount_filter: ['discount_amount', 'discount_percent'].includes(filters.value.sort_by)
+        ? 'discounted'
+        : filters.value.discount_filter,
       sort_by: filters.value.sort_by,
       sort_order: filters.value.sort_order,
     })

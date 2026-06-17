@@ -60,6 +60,7 @@ class ProductRepository:
         search: str = "",
         stock_filter: str = "all",
         sell_type: str = "",
+        discount_filter: str = "all",
         sort_by: str = "updated_at",
         sort_order: str = "desc",
         page: int = 1,
@@ -88,6 +89,13 @@ class ProductRepository:
         if sell_type:
             stmt = stmt.where(Product.sell_type == sell_type)
             count_stmt = count_stmt.where(Product.sell_type == sell_type)
+
+        if discount_filter == "discounted":
+            stmt = stmt.where(Product.regular_price.is_not(None), Product.price < Product.regular_price)
+            count_stmt = count_stmt.where(Product.regular_price.is_not(None), Product.price < Product.regular_price)
+        elif discount_filter == "not_discounted":
+            stmt = stmt.where((Product.regular_price.is_(None)) | (Product.price >= Product.regular_price))
+            count_stmt = count_stmt.where((Product.regular_price.is_(None)) | (Product.price >= Product.regular_price))
 
         # Count
         total = self.session.execute(count_stmt).scalar_one()

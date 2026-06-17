@@ -7,6 +7,7 @@ const props = defineProps({
     default: () => ({
       search: '',
       stock_filter: 'all',
+      discount_filter: 'all',
       sort_by: 'updated_at',
       sort_order: 'desc',
     }),
@@ -52,6 +53,17 @@ watch(() => props.modelValue, (v) => {
       <option value="all">全部商品</option>
       <option value="in_stock">仅有货</option>
       <option value="out_of_stock">仅缺货</option>
+    </select>
+
+    <select
+      v-model="local.discount_filter"
+      @change="emitNow"
+      class="px-3 py-2 text-sm border border-gray-300 rounded focus:outline-none focus:border-blue-500 bg-white"
+      title="优惠筛选"
+    >
+      <option value="all">全部价格</option>
+      <option value="discounted">仅优惠</option>
+      <option value="not_discounted">未优惠</option>
     </select>
 
     <select
