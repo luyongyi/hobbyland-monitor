@@ -144,9 +144,13 @@ class MonitorService:
 
         # Enrich PG products with official Bandai JP¥ MSRP once, only for missing data.
         try:
-            summary = BandaiMsrpService(self.product_repo.session).enrich_pg_products()
+            msrp_service = BandaiMsrpService(self.product_repo.session)
+            summary = msrp_service.enrich_pg_products()
             if summary.get("candidates"):
                 logger.info("PG MSRP enrichment: %s", summary)
+            mg_summary = msrp_service.enrich_mg_products()
+            if mg_summary.get("candidates"):
+                logger.info("MG MSRP enrichment: %s", mg_summary)
         except Exception:
             logger.exception("PG MSRP enrichment failed")
 

@@ -119,15 +119,61 @@ class BandaiMsrpService:
         self.session.flush()
         return {"candidates": len(candidates), "matched": matched, "official_count": len(official)}
 
+    def enrich_mg_products(self) -> dict:
+        """Enrich MG / MGEX products without MSRP.
+
+        This is the first MG pass: automatic high-confidence title matching only.
+        Products that do not reach the confidence threshold are marked not_found
+        and can later be covered by curated overrides if needed.
+        """
+        stmt = select(Product).where(
+            Product.msrp_jpy.is_(None),
+            or_(Product.msrp_source.is_(None), Product.msrp_source == "bandai_hobby_official_mg_not_found"),
+            Product.title.ilike("%MG%"),
+        )
+        candidates = list(self.session.execute(stmt).scalars().all())
+        candidates = [p for p in candidates if _is_mg_product(p.title)]
+
+        if not candidates:
+            return {"candidates": 0, "matched": 0, "official_count": 0}
+
+        official = self.fetch_official_products("mg", max_pages=80)
+        matched = 0
+        now = _now_iso()
+
+        for product in candidates:
+            product.msrp_checked_at = now
+            match, confidence = self._best_match(product.title, official)
+            if match and confidence >= 88:
+                product.msrp_jpy = match.msrp_jpy
+                product.msrp_source = "bandai_hobby_official_mg"
+                product.msrp_confidence = confidence
+                product.official_url = match.detail_url
+                matched += 1
+                logger.info(
+                    "MG MSRP matched: %s -> %s (JP¥%s, confidence=%s)",
+                    product.sku, match.title, match.msrp_jpy, confidence,
+                )
+            else:
+                product.msrp_source = "bandai_hobby_official_mg_not_found"
+                product.msrp_confidence = confidence if match else 0
+
+        self.session.flush()
+        return {"candidates": len(candidates), "matched": matched, "official_count": len(official)}
+
     def fetch_pg_official_products(self) -> list[OfficialProduct]:
         """Fetch all official PG products from Bandai Hobby item_all listing."""
+        return self.fetch_official_products("pg", max_pages=30)
+
+    def fetch_official_products(self, brand: str, max_pages: int = 80) -> list[OfficialProduct]:
+        """Fetch all official products for a Bandai Hobby brand."""
         all_items: list[OfficialProduct] = []
         seen: set[str] = set()
 
-        for page in range(1, 30):
-            url = "https://bandai-hobby.net/item_all/?brand=pg"
+        for page in range(1, max_pages + 1):
+            url = f"https://bandai-hobby.net/item_all/?brand={brand}"
             if page > 1:
-                url = f"https://bandai-hobby.net/item_all/?p={page}&brand=pg"
+                url = f"https://bandai-hobby.net/item_all/?p={page}&brand={brand}"
 
             html = self._fetch(url)
             items = self._parse_list_page(html)
@@ -140,12 +186,12 @@ class BandaiMsrpService:
                 seen.add(item.detail_url)
                 all_items.append(item)
 
-            if f"?p={page + 1}&brand=pg" not in html and f"./?p={page + 1}&brand=pg" not in html:
+            if f"?p={page + 1}&brand={brand}" not in html and f"./?p={page + 1}&brand={brand}" not in html:
                 break
 
-            time.sleep(0.25)
+            time.sleep(0.15)
 
-        logger.info("Fetched %d official PG products from Bandai", len(all_items))
+        logger.info("Fetched %d official %s products from Bandai", len(all_items), brand.upper())
         return all_items
 
     def _fetch(self, url: str) -> str:
@@ -203,8 +249,9 @@ def normalize_title(title: str) -> str:
     """Normalize Chinese/Japanese/English Gundam product names to comparable tokens."""
     s = title.lower()
     s = re.sub(r"\[[^\]]+\]|【[^】]+】|《[^》]+》|（[^）]*ver\.?[^）]*）", " ", s, flags=re.I)
-    s = s.replace("ｐｇ", "pg").replace("ｕｎｌｅａｓｈｅｄ", "unleashed")
+    s = s.replace("ｐｇ", "pg").replace("ｍｇ", "mg").replace("ｕｎｌｅａｓｈｅｄ", "unleashed")
     s = re.sub(r"perfect\s+grade", " pg ", s, flags=re.I)
+    s = re.sub(r"master\s+grade", " mg ", s, flags=re.I)
     replacements = {
         "高達": " gundam ",
         "鋼彈": " gundam ",
@@ -218,6 +265,12 @@ def normalize_title(title: str) -> str:
         "ストライクフリーダム": " strike freedom ",
         "突擊自由": " strike freedom ",
         "突击自由": " strike freedom ",
+        "デスティニー": " destiny ",
+        "命運": " destiny ",
+        "命运": " destiny ",
+        "インパルス": " impulse ",
+        "衝擊": " impulse ",
+        "冲击": " impulse ",
         "ペルフェクティビリティ": " perfectibility ",
         "完美獨角獸": " unicorn perfectibility ",
         "完美独角兽": " unicorn perfectibility ",
@@ -229,6 +282,12 @@ def normalize_title(title: str) -> str:
         "报丧女妖": " banshee ",
         "エクシア": " exia ",
         "能天使": " exia ",
+        "デュナメス": " dynames ",
+        "力天使": " dynames ",
+        "キュリオス": " kyrios ",
+        "主天使": " kyrios ",
+        "ヴァーチェ": " virtue ",
+        "德天使": " virtue ",
         "ダブルオー": " double o ",
         "アストレイ": " astray ",
         "迷惘": " astray ",
@@ -254,6 +313,21 @@ def normalize_title(title: str) -> str:
         "ゼータ": " zeta ",
         "z高達": " zeta gundam ",
         "z高达": " zeta gundam ",
+        "ν高達": " nu gundam ",
+        "ν高达": " nu gundam ",
+        "新安州": " sinanju ",
+        "シナンジュ": " sinanju ",
+        "巴巴托斯": " barbatos ",
+        "バルバトス": " barbatos ",
+        "陸戰型": " ground type ",
+        "陆战型": " ground type ",
+        "基拉德卡": " geara doga ",
+        "ギラドーガ": " geara doga ",
+        "艾比安": " epyon ",
+        "エピオン": " epyon ",
+        "重砲手": " heavyarms ",
+        "重炮手": " heavyarms ",
+        "ヘビーアームズ": " heavyarms ",
         "嫣紅突擊": " strike rouge ",
         "嫣红突击": " strike rouge ",
         "ストライクルージュ": " strike rouge ",
@@ -290,7 +364,11 @@ def _score_match(hobby_tokens: set[str], official_tokens: set[str], hobby_norm: 
     # Hard structural signals.
     if "pg" in hobby_tokens and "pg" in official_tokens:
         score += 25
+    if "mg" in hobby_tokens and "mg" in official_tokens:
+        score += 25
     if "1/60" in hobby_tokens and "1/60" in official_tokens:
+        score += 20
+    if "1/100" in hobby_tokens and "1/100" in official_tokens:
         score += 20
 
     # Important model terms.
@@ -300,6 +378,8 @@ def _score_match(hobby_tokens: set[str], official_tokens: set[str], hobby_norm: 
         "led", "unit", "extension", "clear", "rx", "78", "2",
         "zeta", "rouge", "skygrasper", "seven", "sword", "mass", "production",
         "char", "zero", "custom", "perfectibility", "astray",
+        "destiny", "impulse", "dynames", "kyrios", "virtue", "sinanju",
+        "barbatos", "ground", "type", "geara", "doga", "epyon", "heavyarms",
     }
     overlap = (hobby_tokens & official_tokens)
     score += min(45, len(overlap & important) * 9)
@@ -329,6 +409,14 @@ def _parse_jpy(s: str) -> int | None:
 def _is_pg_product(title: str) -> bool:
     s = title.lower()
     return bool(re.search(r"\bpg\b|perfect grade", s, re.I))
+
+
+def _is_mg_product(title: str) -> bool:
+    """MG family, including MGEX, excluding MGSD."""
+    s = title.lower()
+    if "mgsd" in s:
+        return False
+    return bool(re.search(r"\bmg\b|mgex|master grade", s, re.I))
 
 
 def _now_iso() -> str:
