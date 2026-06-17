@@ -36,7 +36,6 @@ MG_SKU_OVERRIDES = {
     "4573102595478": (5500, "https://bandai-hobby.net/item/01_2785/"),   # Kyrios
     "4573102616128": (4840, "https://bandai-hobby.net/item/01_1349/"),   # F91 Ver.2.0
     "4573102579898": (5390, "https://bandai-hobby.net/item/01_1681/"),   # Force Impulse
-    "4573102615855": (7700, "https://bandai-hobby.net/item/01_1668/"),   # Destiny Extreme Blast
 }
 
 PG_SKU_OVERRIDES = {
