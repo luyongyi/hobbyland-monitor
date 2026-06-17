@@ -57,7 +57,7 @@ class BandaiMsrpService:
         """
         stmt = select(Product).where(
             Product.msrp_jpy.is_(None),
-            Product.msrp_source.is_(None),
+            or_(Product.msrp_source.is_(None), Product.msrp_source == "bandai_hobby_official_pg_not_found"),
             or_(Product.title.ilike("%PG%"), Product.title.ilike("%Perfect Grade%")),
         )
         candidates = list(self.session.execute(stmt).scalars().all())
@@ -176,6 +176,7 @@ def normalize_title(title: str) -> str:
     s = title.lower()
     s = re.sub(r"\[[^\]]+\]|【[^】]+】|《[^》]+》|（[^）]*ver\.?[^）]*）", " ", s, flags=re.I)
     s = s.replace("ｐｇ", "pg").replace("ｕｎｌｅａｓｈｅｄ", "unleashed")
+    s = re.sub(r"perfect\s+grade", " pg ", s, flags=re.I)
     replacements = {
         "高達": " gundam ",
         "鋼彈": " gundam ",
