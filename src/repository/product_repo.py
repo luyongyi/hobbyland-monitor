@@ -6,7 +6,7 @@ import logging
 from dataclasses import dataclass
 from datetime import datetime, timezone
 
-from sqlalchemy import func, select
+from sqlalchemy import asc, desc, func, select
 from sqlalchemy.orm import Session
 
 from ..db.models import PriceHistory, Product, StockHistory, WatchlistItem
@@ -60,6 +60,8 @@ class ProductRepository:
         search: str = "",
         stock_filter: str = "all",
         sell_type: str = "",
+        sort_by: str = "updated_at",
+        sort_order: str = "desc",
         page: int = 1,
         page_size: int = 20,
     ) -> tuple[list[Product], int]:
@@ -90,9 +92,24 @@ class ProductRepository:
         # Count
         total = self.session.execute(count_stmt).scalar_one()
 
+        # Sort
+        discount_amount = func.coalesce(Product.regular_price, Product.price) - Product.price
+        discount_percent = discount_amount / func.nullif(func.coalesce(Product.regular_price, Product.price), 0)
+
+        sort_expr = {
+            "updated_at": Product.updated_at,
+            "price": Product.price,
+            "discount_amount": discount_amount,
+            "discount_percent": discount_percent,
+            "stock": Product.stock,
+        }.get(sort_by, Product.updated_at)
+
+        order_fn = asc if sort_order == "asc" else desc
+        stmt = stmt.order_by(order_fn(sort_expr), Product.updated_at.desc())
+
         # Paginate
         offset = (page - 1) * page_size
-        stmt = stmt.order_by(Product.updated_at.desc()).offset(offset).limit(page_size)
+        stmt = stmt.offset(offset).limit(page_size)
         products = list(self.session.execute(stmt).scalars().all())
 
         return products, total

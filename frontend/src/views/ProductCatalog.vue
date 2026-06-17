@@ -4,7 +4,12 @@ import SearchBar from '../components/SearchBar.vue'
 import ProductCard from '../components/ProductCard.vue'
 import { getProducts } from '../api/client'
 
-const filters = ref({ search: '', stock_filter: 'all' })
+const filters = ref({
+  search: '',
+  stock_filter: 'all',
+  sort_by: 'updated_at',
+  sort_order: 'desc',
+})
 const page = ref(1)
 const pageSize = ref(24)
 const products = ref([])
@@ -19,6 +24,8 @@ async function load() {
       page_size: pageSize.value,
       search: filters.value.search,
       stock_filter: filters.value.stock_filter,
+      sort_by: filters.value.sort_by,
+      sort_order: filters.value.sort_order,
     })
     products.value = data.items
     total.value = data.total

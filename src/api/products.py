@@ -43,6 +43,8 @@ def list_products(
     search: str = Query(""),
     stock_filter: str = Query("all"),
     sell_type: str = Query(""),
+    sort_by: str = Query("updated_at"),
+    sort_order: str = Query("desc"),
     db: Session = Depends(get_db),
 ) -> ProductListResponse:
     """List products with pagination, search, and filters."""
@@ -53,6 +55,8 @@ def list_products(
         search=search,
         stock_filter=stock_filter,
         sell_type=sell_type,
+        sort_by=sort_by,
+        sort_order=sort_order,
         page=page,
         page_size=page_size,
     )
