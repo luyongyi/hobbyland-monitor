@@ -16,7 +16,7 @@ from datetime import datetime, timezone
 from html import unescape
 
 import requests
-from sqlalchemy import select
+from sqlalchemy import or_, select
 from sqlalchemy.orm import Session
 
 from ..db.models import Product
@@ -58,7 +58,7 @@ class BandaiMsrpService:
         stmt = select(Product).where(
             Product.msrp_jpy.is_(None),
             Product.msrp_source.is_(None),
-            Product.title.ilike("%PG%"),
+            or_(Product.title.ilike("%PG%"), Product.title.ilike("%Perfect Grade%")),
         )
         candidates = list(self.session.execute(stmt).scalars().all())
         candidates = [p for p in candidates if _is_pg_product(p.title)]
