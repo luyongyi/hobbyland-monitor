@@ -23,6 +23,23 @@ from ..db.models import Product
 
 logger = logging.getLogger(__name__)
 
+# Curated mappings for current Hobbyland PG products whose Chinese/HK names
+# differ too much from Bandai's Japanese titles. Values are still from the
+# official Bandai Hobby PG listing extracted by this service.
+PG_SKU_OVERRIDES = {
+    "4573102630568": (29150, "https://bandai-hobby.net/item/01_2878/"),  # Strike Freedom
+    "4573102638250": (16500, "https://bandai-hobby.net/item/01_803/"),   # Wing Gundam Zero Custom
+    "4573102642332": (22000, "https://bandai-hobby.net/item/01_4475/"),  # Zeta Gundam
+    "4573102642349": (20900, "https://bandai-hobby.net/item/01_4947/"),  # Strike Rouge + Skygrasper
+    "4573102635440": (19800, "https://bandai-hobby.net/item/01_3718/"),  # Astray Red Frame
+    "4573102635457": (28600, "https://bandai-hobby.net/item/01_988/"),   # 00 Raiser
+    "4573102672483": (25300, "http://p-bandai.jp/item/item-1000124022"), # Astray Red Frame Kai
+    "4573102642301": (13200, "https://bandai-hobby.net/item/01_2876/"),  # MS-06F Zaku II
+    "4573102642295": (13200, "https://bandai-hobby.net/item/01_2877/"),  # MS-06S Char Zaku II
+    "4573102555823": (25300, "https://bandai-hobby.net/item/01_2067/"),  # 00 Seven Sword/G
+    "4573102632814": (34100, "https://p-bandai.jp/item/item-1000164779/"), # Unicorn Perfectibility
+}
+
 BANDAI_HEADERS = {
     "User-Agent": (
         "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) "
@@ -71,8 +88,19 @@ class BandaiMsrpService:
         now = _now_iso()
 
         for product in candidates:
-            match, confidence = self._best_match(product.title, official)
             product.msrp_checked_at = now
+
+            # Known PG SKU override from Bandai official listing.
+            if product.sku in PG_SKU_OVERRIDES:
+                msrp, official_url = PG_SKU_OVERRIDES[product.sku]
+                product.msrp_jpy = msrp
+                product.msrp_source = "bandai_hobby_official_pg_override"
+                product.msrp_confidence = 100
+                product.official_url = official_url
+                matched += 1
+                continue
+
+            match, confidence = self._best_match(product.title, official)
             if match and confidence >= 88:
                 product.msrp_jpy = match.msrp_jpy
                 product.msrp_source = "bandai_hobby_official_pg"
@@ -190,6 +218,9 @@ def normalize_title(title: str) -> str:
         "ストライクフリーダム": " strike freedom ",
         "突擊自由": " strike freedom ",
         "突击自由": " strike freedom ",
+        "ペルフェクティビリティ": " perfectibility ",
+        "完美獨角獸": " unicorn perfectibility ",
+        "完美独角兽": " unicorn perfectibility ",
         "ユニコーン": " unicorn ",
         "獨角獸": " unicorn ",
         "独角兽": " unicorn ",
@@ -199,17 +230,38 @@ def normalize_title(title: str) -> str:
         "エクシア": " exia ",
         "能天使": " exia ",
         "ダブルオー": " double o ",
-        "00": " double o ",
         "アストレイ": " astray ",
+        "迷惘": " astray ",
         "紅異端": " red frame ",
         "红异端": " red frame ",
+        "紅色機改": " red frame ",
+        "红色机改": " red frame ",
+        "紅色機": " red frame ",
+        "红色机": " red frame ",
         "レッドフレーム": " red frame ",
         "ザク": " zaku ",
+        "渣古": " zaku ",
+        "量產型": " mass production ",
+        "量产型": " mass production ",
         "シャア": " char ",
+        "馬沙": " char ",
+        "马沙": " char ",
         "ウイング": " wing ",
+        "ゼロカスタム": " zero custom ",
+        "ゼロ": " zero ",
         "飛翼": " wing ",
         "飞翼": " wing ",
         "ゼータ": " zeta ",
+        "z高達": " zeta gundam ",
+        "z高达": " zeta gundam ",
+        "嫣紅突擊": " strike rouge ",
+        "嫣红突击": " strike rouge ",
+        "ストライクルージュ": " strike rouge ",
+        "空中霸王": " skygrasper ",
+        "スカイグラスパー": " skygrasper ",
+        "七劍": " seven sword ",
+        "七剑": " seven sword ",
+        "セブンソード": " seven sword ",
         "馬克兔": " mk ii ",
         "mk-ii": " mk ii ",
         "mark ii": " mk ii ",
@@ -224,6 +276,8 @@ def normalize_title(title: str) -> str:
     }
     for k, v in replacements.items():
         s = s.replace(k.lower(), v)
+    # Treat 00 as Double O only when it is a standalone model token, not inside MSZ-006.
+    s = re.sub(r"(?<![a-z0-9])00(?![a-z0-9])", " double o ", s)
     s = re.sub(r"[^a-z0-9/]+", " ", s)
     s = re.sub(r"\bbandai\b|\b現貨\b|\b預訂\b|\b模型\b|\b組裝\b", " ", s)
     s = re.sub(r"\s+", " ", s).strip()
@@ -244,6 +298,8 @@ def _score_match(hobby_tokens: set[str], official_tokens: set[str], hobby_norm: 
         "unleashed", "nu", "gundam", "perfect", "strike", "freedom", "unicorn",
         "banshee", "exia", "double", "astray", "red", "frame", "zaku", "wing", "zeta",
         "led", "unit", "extension", "clear", "rx", "78", "2",
+        "zeta", "rouge", "skygrasper", "seven", "sword", "mass", "production",
+        "char", "zero", "custom", "perfectibility", "astray",
     }
     overlap = (hobby_tokens & official_tokens)
     score += min(45, len(overlap & important) * 9)
