@@ -9,6 +9,7 @@ from sqlalchemy.orm import Session
 from ..db.models import Product
 from ..repository.product_repo import ProductRepository
 from ..repository.watchlist_repo import WatchlistRepository
+from ..service.exchange_rate import ExchangeRateService
 from .deps import get_db
 
 router = APIRouter(tags=["products"])
@@ -23,6 +24,12 @@ class ProductOut(BaseModel):
     sell_type: str | None
     link: str | None
     pic1: str | None
+    msrp_jpy: int | None
+    msrp_source: str | None
+    msrp_confidence: int | None
+    official_url: str | None
+    msrp_hkd_estimate: float | None
+    jpy_hkd_rate: float | None
     updated_at: str
     watch_types: list[str]
 
@@ -51,6 +58,8 @@ def list_products(
     """List products with pagination, search, and filters."""
     repo = ProductRepository(db)
     watchlist_repo = WatchlistRepository(db)
+    rate_record = ExchangeRateService(db).get_latest_jpy_hkd()
+    jpy_hkd_rate = rate_record.rate if rate_record else None
 
     products, total = repo.search_products(
         search=search,
@@ -75,6 +84,12 @@ def list_products(
             sell_type=p.sell_type,
             link=p.link,
             pic1=p.pic1,
+            msrp_jpy=p.msrp_jpy,
+            msrp_source=p.msrp_source,
+            msrp_confidence=p.msrp_confidence,
+            official_url=p.official_url,
+            msrp_hkd_estimate=(round(p.msrp_jpy * jpy_hkd_rate, 2) if p.msrp_jpy and jpy_hkd_rate else None),
+            jpy_hkd_rate=jpy_hkd_rate,
             updated_at=p.updated_at,
             watch_types=watch_types,
         ))
@@ -92,6 +107,8 @@ def get_product(sku: str, db: Session = Depends(get_db)) -> ProductOut:
     """Get a single product by SKU."""
     repo = ProductRepository(db)
     watchlist_repo = WatchlistRepository(db)
+    rate_record = ExchangeRateService(db).get_latest_jpy_hkd()
+    jpy_hkd_rate = rate_record.rate if rate_record else None
 
     product = repo.get_by_sku(sku)
     if product is None:
@@ -108,6 +125,12 @@ def get_product(sku: str, db: Session = Depends(get_db)) -> ProductOut:
         sell_type=product.sell_type,
         link=product.link,
         pic1=product.pic1,
+        msrp_jpy=product.msrp_jpy,
+        msrp_source=product.msrp_source,
+        msrp_confidence=product.msrp_confidence,
+        official_url=product.official_url,
+        msrp_hkd_estimate=(round(product.msrp_jpy * jpy_hkd_rate, 2) if product.msrp_jpy and jpy_hkd_rate else None),
+        jpy_hkd_rate=jpy_hkd_rate,
         updated_at=product.updated_at,
         watch_types=watch_types,
     )

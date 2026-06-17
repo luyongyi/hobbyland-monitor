@@ -65,6 +65,16 @@ const stockStatus = computed(() => {
 
       <PriceTag :price="product.price" :regular-price="product.regular_price" />
 
+      <div v-if="product.msrp_jpy" class="text-xs bg-indigo-50 text-indigo-700 rounded px-2 py-1 leading-relaxed">
+        <div>
+          日本定价：<span class="font-semibold">JP¥{{ product.msrp_jpy.toLocaleString() }}</span>
+          <span v-if="product.msrp_confidence" class="text-indigo-400"> · {{ product.msrp_confidence }}%</span>
+        </div>
+        <div v-if="product.msrp_hkd_estimate" class="text-indigo-500">
+          约 HK${{ Math.round(product.msrp_hkd_estimate).toLocaleString() }}
+        </div>
+      </div>
+
       <div class="text-xs text-gray-400">SKU: {{ product.sku }}</div>
 
       <div class="mt-auto pt-2 flex justify-end">

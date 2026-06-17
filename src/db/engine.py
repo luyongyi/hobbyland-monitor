@@ -64,6 +64,22 @@ def _run_migrations(engine: sa.engine.Engine) -> None:
         except OperationalError:
             pass
 
+        # Add MSRP columns to products if missing
+        for col_def in [
+            "msrp_jpy INTEGER",
+            "msrp_source TEXT",
+            "msrp_confidence INTEGER",
+            "msrp_checked_at TEXT",
+            "official_url TEXT",
+        ]:
+            col_name = col_def.split()[0]
+            try:
+                conn.execute(sa.text(f"ALTER TABLE products ADD COLUMN {col_def}"))
+                conn.commit()
+                logger.info("Migration: added %s column to products table", col_name)
+            except OperationalError:
+                pass
+
         # Migrate is_watched=1 rows into the watchlist table
         _migrate_watched_to_watchlist(conn)
 

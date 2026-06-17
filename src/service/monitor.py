@@ -11,6 +11,7 @@ from ..notifier.base import Alert, Notifier
 from ..repository.alert_repo import AlertRepository
 from ..repository.product_repo import ProductRepository
 from ..repository.watchlist_repo import WatchlistRepository
+from .bandai_msrp import BandaiMsrpService
 
 logger = logging.getLogger(__name__)
 
@@ -140,6 +141,14 @@ class MonitorService:
             logger.warning(
                 "Watched SKUs not found in API response: %s", ", ".join(missing)
             )
+
+        # Enrich PG products with official Bandai JP¥ MSRP once, only for missing data.
+        try:
+            summary = BandaiMsrpService(self.product_repo.session).enrich_pg_products()
+            if summary.get("candidates"):
+                logger.info("PG MSRP enrichment: %s", summary)
+        except Exception:
+            logger.exception("PG MSRP enrichment failed")
 
         # 3. Persist alerts to DB
         if alerts:

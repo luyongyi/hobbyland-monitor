@@ -9,6 +9,7 @@ from sqlalchemy.orm import Session
 from ..db.models import Product
 from ..repository.product_repo import ProductRepository
 from ..repository.watchlist_repo import WatchlistRepository
+from ..service.exchange_rate import ExchangeRateService
 from .deps import get_db
 
 router = APIRouter(tags=["watchlist"])
@@ -21,6 +22,12 @@ class WatchlistItemOut(BaseModel):
     regular_price: float | None
     stock: int
     pic1: str | None
+    msrp_jpy: int | None
+    msrp_source: str | None
+    msrp_confidence: int | None
+    official_url: str | None
+    msrp_hkd_estimate: float | None
+    jpy_hkd_rate: float | None
     watch_type: str
     baseline_price: float | None
     is_satisfied: bool          # 是否已达成（缺货变有货 / 原价变打折 / 价格更低）
@@ -70,6 +77,8 @@ def list_watchlist(
     """List all watched items, optionally filtered by watch type."""
     watchlist_repo = WatchlistRepository(db)
     product_repo = ProductRepository(db)
+    rate_record = ExchangeRateService(db).get_latest_jpy_hkd()
+    jpy_hkd_rate = rate_record.rate if rate_record else None
 
     if watch_type:
         items = watchlist_repo.get_by_type(watch_type)
@@ -88,6 +97,12 @@ def list_watchlist(
             regular_price=product.regular_price,
             stock=product.stock,
             pic1=product.pic1,
+            msrp_jpy=product.msrp_jpy,
+            msrp_source=product.msrp_source,
+            msrp_confidence=product.msrp_confidence,
+            official_url=product.official_url,
+            msrp_hkd_estimate=(round(product.msrp_jpy * jpy_hkd_rate, 2) if product.msrp_jpy and jpy_hkd_rate else None),
+            jpy_hkd_rate=jpy_hkd_rate,
             watch_type=item.watch_type,
             baseline_price=item.baseline_price,
             is_satisfied=_is_satisfied(item.watch_type, product, item.baseline_price),
@@ -105,6 +120,8 @@ def add_watch(req: WatchlistAddRequest, db: Session = Depends(get_db)) -> Watchl
 
     watchlist_repo = WatchlistRepository(db)
     product_repo = ProductRepository(db)
+    rate_record = ExchangeRateService(db).get_latest_jpy_hkd()
+    jpy_hkd_rate = rate_record.rate if rate_record else None
 
     try:
         item = watchlist_repo.add_watch(req.sku, req.watch_type)
@@ -121,6 +138,10 @@ def add_watch(req: WatchlistAddRequest, db: Session = Depends(get_db)) -> Watchl
         regular_price=product.regular_price if product else None,
         stock=product.stock if product else 0,
         pic1=product.pic1 if product else None,
+        msrp_jpy=product.msrp_jpy if product else None,
+        msrp_source=product.msrp_source if product else None,
+        msrp_confidence=product.msrp_confidence if product else None,
+        official_url=product.official_url if product else None,
         watch_type=item.watch_type,
         baseline_price=item.baseline_price,
         is_satisfied=_is_satisfied(item.watch_type, product, item.baseline_price) if product else False,

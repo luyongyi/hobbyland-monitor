@@ -22,6 +22,11 @@ class Product(Base):
     sell_type: Mapped[str | None] = mapped_column(Text, nullable=True)
     link: Mapped[str | None] = mapped_column(Text, nullable=True)
     pic1: Mapped[str | None] = mapped_column(Text, nullable=True)
+    msrp_jpy: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    msrp_source: Mapped[str | None] = mapped_column(Text, nullable=True)
+    msrp_confidence: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    msrp_checked_at: Mapped[str | None] = mapped_column(Text, nullable=True)
+    official_url: Mapped[str | None] = mapped_column(Text, nullable=True)
     is_watched: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
     updated_at: Mapped[str] = mapped_column(Text, nullable=False)
 
@@ -84,4 +89,19 @@ class AlertRecord(Base):
 
     __table_args__ = (
         Index("ix_alerts_created", "created_at"),
+    )
+
+
+class ExchangeRate(Base):
+    __tablename__ = "exchange_rates"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    base_currency: Mapped[str] = mapped_column(Text, nullable=False)
+    target_currency: Mapped[str] = mapped_column(Text, nullable=False)
+    rate: Mapped[float] = mapped_column(REAL, nullable=False)
+    source: Mapped[str] = mapped_column(Text, nullable=False)
+    fetched_at: Mapped[str] = mapped_column(Text, nullable=False)
+
+    __table_args__ = (
+        Index("ix_exchange_rates_pair_time", "base_currency", "target_currency", "fetched_at"),
     )

@@ -25,6 +25,7 @@ from .repository.alert_repo import AlertRepository
 from .repository.product_repo import ProductRepository
 from .repository.watchlist_repo import WatchlistRepository
 from .scheduler.jobs import create_scheduler
+from .service.exchange_rate import ExchangeRateService
 from .service.monitor import MonitorService
 from .service.scan_runner import ScanRunner
 
@@ -69,6 +70,12 @@ def _run_scan_cycle(runner=None) -> None:
         monitor.run_scan(runner=runner)
 
 
+def _refresh_exchange_rate() -> None:
+    """Refresh JPY/HKD exchange rate if stale."""
+    with get_session(engine) as session:
+        ExchangeRateService(session).refresh_jpy_hkd_if_stale(max_age_minutes=60)
+
+
 # Build the scan runner and inject into the scan router
 scan_runner = ScanRunner(_run_scan_cycle)
 scan_router.set_scan_runner(scan_runner)
@@ -83,8 +90,14 @@ async def lifespan(app: FastAPI):
     logger.info("Triggering initial scan in background...")
     scan_runner.run_async()
 
+    # Refresh exchange rate once on startup (local DB cache; then hourly)
+    try:
+        _refresh_exchange_rate()
+    except Exception:
+        logger.exception("Initial exchange rate refresh failed")
+
     # Start the scheduler in the background
-    scheduler = create_scheduler(scan_runner.run, config.scheduler)
+    scheduler = create_scheduler(scan_runner.run, config.scheduler, exchange_rate_fn=_refresh_exchange_rate)
     scheduler.start()
     logger.info(
         "Scheduler running. Daily scan at %s (%s)",
