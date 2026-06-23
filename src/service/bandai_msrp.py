@@ -33,6 +33,17 @@ MGEX_SKU_OVERRIDES = {
 RG_SKU_OVERRIDES = {
     "4573102615947": (2750, "https://bandai-hobby.net/item/01_2228/"),   # RG 01 RX-78-2 Gundam
     "PRE-671554": (3850, "https://bandai-hobby.net/item/01_5261/"),      # RG RX-78-2 Gundam Ver.2.0
+    "4573102616616": (3520, "https://bandai-hobby.net/item/01_3425/"),   # RG Wing Gundam
+    "4573102654427": (4620, "https://bandai-hobby.net/item/01_4923/"),   # RG Gundam Epyon
+    "4573102604255": (6050, "https://bandai-hobby.net/item/01_3306/"),   # RG Zeong
+    "4573102616050": (5280, "https://bandai-hobby.net/item/01_1408/"),   # RG Sazabi
+    "4573102616197": (4180, "https://bandai-hobby.net/item/01_660/"),    # RG Sinanju
+    "4573102616203": (4510, "https://bandai-hobby.net/item/01_1085/"),   # RG Unicorn
+    "4573102554604": (3850, "https://bandai-hobby.net/item/01_833/"),    # RG Astray Gold Frame Amatsu Mina
+    "4573102616180": (3080, "https://bandai-hobby.net/item/01_387/"),    # RG Astray Red Frame
+    "4573102616005": (3080, "https://bandai-hobby.net/item/01_96/"),     # RG Exia
+    "4573102616142": (3080, "https://bandai-hobby.net/item/01_3721/"),   # RG Freedom
+    "4573102616029": (3080, "https://bandai-hobby.net/item/01_251/"),    # RG Wing Gundam Zero EW
 }
 
 MG_SKU_OVERRIDES = {
