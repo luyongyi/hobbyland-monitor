@@ -44,6 +44,31 @@ RG_SKU_OVERRIDES = {
     "4573102616005": (3080, "https://bandai-hobby.net/item/01_96/"),     # RG Exia
     "4573102616142": (3080, "https://bandai-hobby.net/item/01_3721/"),   # RG Freedom
     "4573102616029": (3080, "https://bandai-hobby.net/item/01_251/"),    # RG Wing Gundam Zero EW
+    "4573102616043": (3080, "https://bandai-hobby.net/item/01_558/"),     # RG 00 Qan[T]
+    "4573102615992": (3630, "https://bandai-hobby.net/item/01_2883/"),    # RG Zeta Gundam
+    "4573102615954": (3080, "https://bandai-hobby.net/item/01_2230/"),    # RG Char's Zaku II
+    "4573102615961": (3080, "https://bandai-hobby.net/item/01_2224/"),    # RG Mass Production Zaku II
+    "4573102616159": (3080, "https://bandai-hobby.net/item/01_3726/"),    # RG Justice Gundam
+    "4573102616173": (3850, "https://bandai-hobby.net/item/01_5895/"),    # RG Strike Freedom Gundam
+    "4573102616166": (3080, "https://bandai-hobby.net/item/01_5802/"),    # RG Destiny Gundam
+    "4573102616135": (3080, "https://bandai-hobby.net/item/01_3720/"),    # RG Aile Strike Gundam
+    "4573102616012": (3080, "https://bandai-hobby.net/item/01_151/"),     # RG Char's Z'Gok
+    "4573102630537": (3080, "https://bandai-hobby.net/item/01_466/"),     # RG Wing Gundam EW
+    "4573102616210": (4730, "https://bandai-hobby.net/item/01_1259/"),    # RG Banshee Norn
+    "4573102630858": (3080, "https://bandai-hobby.net/item/01_1299/"),    # RG Tallgeese EW
+    "4573102630520": (2750, "https://bandai-hobby.net/item/01_5740/"),    # RG Skygrasper Launcher/Sword Pack
+    "4573102633583": (3850, "https://bandai-hobby.net/item/01_4104/"),    # RG God Gundam
+    "4573102616036": (3630, "https://bandai-hobby.net/item/01_317/"),     # RG 00 Raiser
+    "4573102555861": (6270, "https://bandai-hobby.net/item/01_2028/"),    # RG Full Armor Unicorn
+    "4573102615978": (2750, "https://bandai-hobby.net/item/01_2881/"),    # RG Gundam Mk-II Titans
+    "4573102615985": (3080, "https://bandai-hobby.net/item/01_2882/"),    # RG Gundam Mk-II AEUG
+    "4573102576170": (2750, "https://bandai-hobby.net/item/01_2251/"),    # RG Crossbone Gundam X1
+    "4573102673961": (8800, "https://bandai-hobby.net/item/01_5394/"),    # RG Akatsuki Gundam Oowashi
+    "4573102685582": (3850, "https://bandai-hobby.net/item/01_5544/"),    # RG Shining Gundam
+    "4573102687050": (3850, "https://bandai-hobby.net/item/01_5544/"),    # RG Shining Gundam
+    "4573102630841": (2750, "https://bandai-hobby.net/item/01_756/"),     # RG Build Strike Full Package
+    "4573102688743": (4620, "https://bandai-hobby.net/item/01_5968/"),    # RG Wing Gundam Zero
+    "4573102619150": (4950, "https://bandai-hobby.net/item/01_3524/"),    # RG Hi-Nu Gundam
 }
 
 MG_SKU_OVERRIDES = {
