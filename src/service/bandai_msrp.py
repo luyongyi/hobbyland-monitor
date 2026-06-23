@@ -160,6 +160,12 @@ MG_SKU_OVERRIDES = {
     "4573102698933": (3740, "https://bandai-hobby.net/item/01_1564/"),   # Gelgoog Cannon
     "4573102635631": (6820, "https://bandai-hobby.net/item/01_1692/"),   # G-Fighter Gundam Ver.2.0 V Operation
     "4573102640949": (11880, "https://bandai-hobby.net/item/01_3615/"),  # Perfect Zeong
+    "4573102616081": (6160, "https://bandai-hobby.net/item/01_5671/"),   # Unicorn Gundam
+    "4573102635419": (4620, "https://bandai-hobby.net/item/01_3920/"),   # Wing Zero EW
+    "4573102641267": (4400, "https://bandai-hobby.net/item/01_4177/"),   # Rick Dias Quattro
+    "4573102631947": (4400, "https://bandai-hobby.net/item/01_4177/"),   # Rick Dias Quattro
+    "4573102630469": (13200, "https://bandai-hobby.net/item/01_50/"),    # Unicorn Phenex
+    "4573102553287": (6490, "https://bandai-hobby.net/item/01_1883/"),   # 00 Qan[T] Full Saber
 }
 
 PG_SKU_OVERRIDES = {
