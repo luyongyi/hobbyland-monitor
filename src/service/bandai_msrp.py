@@ -76,11 +76,46 @@ MG_SKU_OVERRIDES = {
     "4573102554567": (5720, "https://bandai-hobby.net/item/01_5837/"),   # Geara Doga
     "4573102630421": (5720, "https://bandai-hobby.net/item/01_1779/"),   # Epyon EW
     "4573102567673": (4950, "https://bandai-hobby.net/item/01_2127/"),   # Dynames
-    "4573102582225": (5390, "https://bandai-hobby.net/item/01_3056/"),   # Barbatos
     "4573102630827": (7590, "https://p-bandai.jp/item/item-1000141550/"), # 00 Raiser
     "4573102595478": (5500, "https://bandai-hobby.net/item/01_2785/"),   # Kyrios
     "4573102616128": (4840, "https://bandai-hobby.net/item/01_1349/"),   # F91 Ver.2.0
     "4573102579898": (5390, "https://bandai-hobby.net/item/01_1681/"),   # Force Impulse
+    "4573102615824": (7700, "https://bandai-hobby.net/item/01_1668/"),   # Destiny Gundam Extreme Blast Mode
+    "4573102630438": (4620, "https://bandai-hobby.net/item/01_1786/"),   # Sandrock EW
+    "4573102616111": (5390, "https://bandai-hobby.net/item/01_542/"),    # Freedom Ver.2.0
+    "4573102621719": (5500, "https://bandai-hobby.net/item/01_3754/"),   # Dom
+    "4573102615862": (4620, "https://bandai-hobby.net/item/01_981/"),    # Exia
+    "4573102615916": (7700, "https://bandai-hobby.net/item/01_1642/"),   # Hi-Nu Gundam
+    "4573102629074": (5280, "https://bandai-hobby.net/item/01_1796/"),   # Aegis Gundam
+    "4573102630414": (5940, "https://bandai-hobby.net/item/01_1688/"),   # Infinite Justice Gundam
+    "4573102615909": (4180, "https://bandai-hobby.net/item/01_2813/"),   # Aile Strike Gundam
+    "4573102630513": (5940, "https://bandai-hobby.net/item/01_829/"),    # Providence Gundam
+    "4573102619198": (5500, "https://bandai-hobby.net/item/01_3523/"),   # Eclipse Gundam
+    "4573102629067": (4400, "https://bandai-hobby.net/item/01_1794/"),   # Buster Gundam
+    "4573102631503": (5720, "https://bandai-hobby.net/item/01_1019/"),   # Justice Gundam
+    "4573102616067": (5720, "https://bandai-hobby.net/item/01_5643/"),   # Strike Freedom Gundam
+    "4573102629043": (5060, "https://bandai-hobby.net/item/01_1789/"),   # Duel Gundam Assault Shroud
+    "4573102641182": (5390, "https://bandai-hobby.net/item/01_1698/"),   # Sword Impulse Gundam
+    "4573102615855": (4620, "https://bandai-hobby.net/item/01_1701/"),   # Gouf Ver.2.0
+    "4573102615756": (3300, "https://p-bandai.jp/item/item-1000114334"), # Gouf Custom
+    "4573102635754": (4840, "https://bandai-hobby.net/item/01_1394/"),   # Jegan
+    "4573102581846": (4730, "https://bandai-hobby.net/item/01_2402/"),   # Gunner Zaku Warrior Luna
+    "4573102628428": (4290, "https://bandai-hobby.net/item/01_3591/"),   # AGE-1 Normal
+    "4573102640970": (5390, "https://bandai-hobby.net/item/01_5713/"),   # Delta Plus
+    "4573102621726": (5500, "https://bandai-hobby.net/item/01_3772/"),   # Rick Dom
+    "4573102615763": (3960, "https://bandai-hobby.net/item/01_2597/"),   # Z'Gok
+    "4549660156291": (5940, "https://bandai-hobby.net/item/01_829/"),    # Providence Gundam
+    "4573102638397": (3520, "https://bandai-hobby.net/item/01_1629/"),   # Master Gundam
+    "4573102617880": (8800, "https://bandai-hobby.net/item/01_3656/"),   # Virtue
+    "4573102683533": (6600, "https://bandai-hobby.net/item/01_5469/"),   # Gundam Vidar
+    "4573102661371": (5280, "https://bandai-hobby.net/item/01_356/"),    # Fenice Rinascita
+    "4573102628459": (4620, "https://bandai-hobby.net/item/01_5774/"),   # Tallgeese EW
+    "4573102615473": (4730, "https://bandai-hobby.net/item/01_3389/"),   # Mobile Ginn
+    "4573102631473": (5060, "https://bandai-hobby.net/item/01_4827/"),   # Acguy
+    "4573102635075": (4840, "https://bandai-hobby.net/item/01_919/"),    # Kampfer
+    "4573102638380": (4290, "https://bandai-hobby.net/item/01_1025/"),   # GP03S Stamen
+    "4573102628435": (5060, "https://bandai-hobby.net/item/01_2280/"),   # AGE-2 Normal
+    "4573102628442": (5060, "https://bandai-hobby.net/item/01_1797/"),   # AGE-2 Dark Hound
 }
 
 PG_SKU_OVERRIDES = {
