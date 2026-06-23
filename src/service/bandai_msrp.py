@@ -30,6 +30,11 @@ MGEX_SKU_OVERRIDES = {
     "4573102633682": (17050, "https://bandai-hobby.net/item/01_4230/"),  # MGEX Strike Freedom Gundam
 }
 
+RG_SKU_OVERRIDES = {
+    "4573102615947": (2750, "https://bandai-hobby.net/item/01_2228/"),   # RG 01 RX-78-2 Gundam
+    "PRE-671554": (3850, "https://bandai-hobby.net/item/01_5261/"),      # RG RX-78-2 Gundam Ver.2.0
+}
+
 MG_SKU_OVERRIDES = {
     "4573102630445": (4620, "https://bandai-hobby.net/item/01_1788/"),   # Heavyarms EW
     "4573102554567": (5720, "https://bandai-hobby.net/item/01_5837/"),   # Geara Doga
@@ -130,6 +135,57 @@ class BandaiMsrpService:
             else:
                 # Mark checked so we do not keep hammering Bandai for poor matches.
                 product.msrp_source = "bandai_hobby_official_pg_not_found"
+                product.msrp_confidence = confidence if match else 0
+
+        self.session.flush()
+        return {"candidates": len(candidates), "matched": matched, "official_count": len(official)}
+
+    def enrich_rg_products(self) -> dict:
+        """Enrich RG products without MSRP.
+
+        Conservative first pass: explicit overrides + very high confidence title
+        matches only. Clear/color/coating/limited variants are intentionally
+        left empty unless explicitly covered.
+        """
+        stmt = select(Product).where(
+            Product.msrp_jpy.is_(None),
+            or_(Product.msrp_source.is_(None), Product.msrp_source == "bandai_hobby_official_rg_not_found"),
+            Product.title.ilike("%RG%"),
+        )
+        candidates = list(self.session.execute(stmt).scalars().all())
+        candidates = [p for p in candidates if _is_rg_product(p.title)]
+        if not candidates:
+            return {"candidates": 0, "matched": 0, "official_count": 0}
+
+        official = self.fetch_official_products("rg", max_pages=40)
+        matched = 0
+        now = _now_iso()
+
+        for product in candidates:
+            product.msrp_checked_at = now
+
+            if product.sku in RG_SKU_OVERRIDES:
+                msrp, official_url = RG_SKU_OVERRIDES[product.sku]
+                product.msrp_jpy = msrp
+                product.msrp_source = "bandai_hobby_official_rg_override"
+                product.msrp_confidence = 100
+                product.official_url = official_url
+                matched += 1
+                continue
+
+            match, confidence = self._best_match(product.title, official)
+            if match and confidence >= 96:
+                product.msrp_jpy = match.msrp_jpy
+                product.msrp_source = "bandai_hobby_official_rg"
+                product.msrp_confidence = confidence
+                product.official_url = match.detail_url
+                matched += 1
+                logger.info(
+                    "RG MSRP matched: %s -> %s (JP¥%s, confidence=%s)",
+                    product.sku, match.title, match.msrp_jpy, confidence,
+                )
+            else:
+                product.msrp_source = "bandai_hobby_official_rg_not_found"
                 product.msrp_confidence = confidence if match else 0
 
         self.session.flush()
@@ -510,6 +566,10 @@ def _parse_jpy(s: str) -> int | None:
 def _is_pg_product(title: str) -> bool:
     s = title.lower()
     return bool(re.search(r"\bpg\b|perfect grade", s, re.I))
+
+
+def _is_rg_product(title: str) -> bool:
+    return bool(re.search(r"\brg\b|real grade", title, re.I))
 
 
 def _is_mg_product(title: str) -> bool:
