@@ -116,6 +116,17 @@ MG_SKU_OVERRIDES = {
     "4573102638380": (4290, "https://bandai-hobby.net/item/01_1025/"),   # GP03S Stamen
     "4573102628435": (5060, "https://bandai-hobby.net/item/01_2280/"),   # AGE-2 Normal
     "4573102628442": (5060, "https://bandai-hobby.net/item/01_1797/"),   # AGE-2 Dark Hound
+    "4573102630407": (5500, "https://p-bandai.jp/item/item-1000144878"), # Blast Impulse Gundam
+    "4573102629050": (4400, "https://bandai-hobby.net/item/01_1792/"),   # Blitz Gundam
+    "4573102615923": (8580, "https://bandai-hobby.net/item/01_338/"),    # Hyaku Shiki Ver.2.0
+    "4573102640956": (5390, "https://bandai-hobby.net/item/01_3984/"),   # Altron Gundam EW
+    "4573102628411": (4620, "https://bandai-hobby.net/item/01_1765/"),   # Deathscythe EW
+    "4573102615886": (5390, "https://bandai-hobby.net/item/01_1775/"),   # Deathscythe Hell EW
+    "4573102615879": (5390, "https://bandai-hobby.net/item/01_985/"),    # 00 Qan[T]
+    "4573102635082": (4840, "https://bandai-hobby.net/item/01_1201/"),   # Qubeley
+    "4573102631930": (4840, "https://bandai-hobby.net/item/01_3147/"),   # Qubeley Mk-II Puru Two
+    "4573102657367": (8300, "https://bandai-hobby.net/item/01_5353/"),   # Musha Gundam Mk-II Tokugawa
+    "4573102672315": (7040, "https://bandai-hobby.net/item/01_1753/"),   # Musha Gundam Mk-II
     "4573102641281": (4950, "https://bandai-hobby.net/item/01_1645/"),   # Strike Noir Gundam
     "4573102631497": (4180, "https://bandai-hobby.net/item/01_33/"),     # Gundam X
     "4573102635402": (3740, "https://bandai-hobby.net/item/01_3790/"),   # Hi-Zack
