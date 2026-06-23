@@ -153,7 +153,15 @@ MG_SKU_OVERRIDES = {
     "4573102635310": (7370, "http://p-bandai.jp/item/item-1000125385"),  # Avalanche Exia Dash
     "4573102672346": (5500, "https://bandai-hobby.net/item/01_1678/"),   # Launcher/Sword Strike Gundam
     "4573102672339": (7700, "https://bandai-hobby.net/item/01_1642/"),   # Hi-Nu Gundam
+    "4573102628374": (3520, "https://bandai-hobby.net/item/01_1636/"),   # RX-78-4 Gundam 4th Unit
+    "4573102691811": (7150, "https://bandai-hobby.net/item/01_6764/"),   # Barbatos Lupus
+    "PRE-683533": (6600, "https://bandai-hobby.net/item/01_5469/"),      # Gundam Vidar preorder
+    "4573102631466": (3740, "https://bandai-hobby.net/item/01_1159/"),   # Ground GM
+    "4573102698933": (3740, "https://bandai-hobby.net/item/01_1564/"),   # Gelgoog Cannon
+    "4573102635631": (6820, "https://bandai-hobby.net/item/01_1692/"),   # G-Fighter Gundam Ver.2.0 V Operation
+    "4573102640949": (11880, "https://bandai-hobby.net/item/01_3615/"),  # Perfect Zeong
 }
+
 PG_SKU_OVERRIDES = {
     "4573102630568": (29150, "https://bandai-hobby.net/item/01_2878/"),  # Strike Freedom
     "4573102638250": (16500, "https://bandai-hobby.net/item/01_803/"),   # Wing Gundam Zero Custom
