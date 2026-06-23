@@ -30,6 +30,12 @@ MGEX_SKU_OVERRIDES = {
     "4573102633682": (17050, "https://bandai-hobby.net/item/01_4230/"),  # MGEX Strike Freedom Gundam
 }
 
+MGSD_SKU_OVERRIDES = {
+    "PRE-656995": (4290, "https://bandai-hobby.net/item/01_4994/"),      # MGSD Barbatos preorder
+    "4573102656995": (4290, "https://bandai-hobby.net/item/01_4994/"),   # MGSD Barbatos
+    "4573102642578": (4290, "https://bandai-hobby.net/item/01_4293/"),   # MGSD Freedom Gundam
+}
+
 RG_SKU_OVERRIDES = {
     "4573102615947": (2750, "https://bandai-hobby.net/item/01_2228/"),   # RG 01 RX-78-2 Gundam
     "PRE-671554": (3850, "https://bandai-hobby.net/item/01_5261/"),      # RG RX-78-2 Gundam Ver.2.0
@@ -148,7 +154,6 @@ MG_SKU_OVERRIDES = {
     "4573102672346": (5500, "https://bandai-hobby.net/item/01_1678/"),   # Launcher/Sword Strike Gundam
     "4573102672339": (7700, "https://bandai-hobby.net/item/01_1642/"),   # Hi-Nu Gundam
 }
-
 PG_SKU_OVERRIDES = {
     "4573102630568": (29150, "https://bandai-hobby.net/item/01_2878/"),  # Strike Freedom
     "4573102638250": (16500, "https://bandai-hobby.net/item/01_803/"),   # Wing Gundam Zero Custom
@@ -292,6 +297,32 @@ class BandaiMsrpService:
 
         self.session.flush()
         return {"candidates": len(candidates), "matched": matched, "official_count": len(official)}
+
+    def enrich_mgsd_products(self) -> dict:
+        """Enrich MGSD products with curated official MSRP overrides."""
+        stmt = select(Product).where(
+            Product.msrp_jpy.is_(None),
+            Product.title.ilike("%MGSD%"),
+        )
+        candidates = list(self.session.execute(stmt).scalars().all())
+        if not candidates:
+            return {"candidates": 0, "matched": 0, "official_count": len(MGSD_SKU_OVERRIDES)}
+        matched = 0
+        now = _now_iso()
+        for product in candidates:
+            product.msrp_checked_at = now
+            if product.sku in MGSD_SKU_OVERRIDES:
+                msrp, official_url = MGSD_SKU_OVERRIDES[product.sku]
+                product.msrp_jpy = msrp
+                product.msrp_source = "bandai_hobby_official_mgsd_override"
+                product.msrp_confidence = 100
+                product.official_url = official_url
+                matched += 1
+            else:
+                product.msrp_source = "bandai_hobby_official_mgsd_not_found"
+                product.msrp_confidence = 0
+        self.session.flush()
+        return {"candidates": len(candidates), "matched": matched, "official_count": len(MGSD_SKU_OVERRIDES)}
 
     def enrich_mgex_products(self) -> dict:
         """Enrich MGEX products without MSRP."""
