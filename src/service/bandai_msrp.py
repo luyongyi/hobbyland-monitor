@@ -135,7 +135,6 @@ MG_SKU_OVERRIDES = {
     "4573102635365": (4840, "https://bandai-hobby.net/item/01_1588/"),   # GP02A
     "4573102638229": (3190, "https://bandai-hobby.net/item/01_1448/"),   # GP01
     "4573102635396": (4290, "https://bandai-hobby.net/item/01_2667/"),   # Gogg
-    "4573102631930": (4840, "https://bandai-hobby.net/item/01_3147/"),   # Qubeley Mk-II Puru Two
     "4573102672292": (8800, "https://bandai-hobby.net/item/01_1695/"),   # Shin Musha Gundam Sengoku no Jin
     "4573102630810": (4400, "https://bandai-hobby.net/item/01_983/"),    # GN-X
     "4573102661364": (5500, "https://bandai-hobby.net/item/01_55/"),     # Sengoku Astray
