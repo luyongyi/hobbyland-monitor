@@ -116,6 +116,27 @@ MG_SKU_OVERRIDES = {
     "4573102638380": (4290, "https://bandai-hobby.net/item/01_1025/"),   # GP03S Stamen
     "4573102628435": (5060, "https://bandai-hobby.net/item/01_2280/"),   # AGE-2 Normal
     "4573102628442": (5060, "https://bandai-hobby.net/item/01_1797/"),   # AGE-2 Dark Hound
+    "4573102641281": (4950, "https://bandai-hobby.net/item/01_1645/"),   # Strike Noir Gundam
+    "4573102631497": (4180, "https://bandai-hobby.net/item/01_33/"),     # Gundam X
+    "4573102635402": (3740, "https://bandai-hobby.net/item/01_3790/"),   # Hi-Zack
+    "4573102629173": (14080, "https://bandai-hobby.net/item/01_1463/"),  # The O
+    "4573102663733": (5390, "https://bandai-hobby.net/item/01_5649/"),   # Crossbone Gundam X1 Full Cloth
+    "4573102635365": (4840, "https://bandai-hobby.net/item/01_1588/"),   # GP02A
+    "4573102638229": (3190, "https://bandai-hobby.net/item/01_1448/"),   # GP01
+    "4573102635396": (4290, "https://bandai-hobby.net/item/01_2667/"),   # Gogg
+    "4573102631930": (4840, "https://bandai-hobby.net/item/01_3147/"),   # Qubeley Mk-II Puru Two
+    "4573102672292": (8800, "https://bandai-hobby.net/item/01_1695/"),   # Shin Musha Gundam Sengoku no Jin
+    "4573102630810": (4400, "https://bandai-hobby.net/item/01_983/"),    # GN-X
+    "4573102661364": (5500, "https://bandai-hobby.net/item/01_55/"),     # Sengoku Astray
+    "4573102638403": (2750, "https://bandai-hobby.net/item/01_1746/"),   # Shining Gundam
+    "4573102635112": (5720, "https://bandai-hobby.net/item/01_5677/"),   # ReZEL
+    "4573102692306": (4290, "https://bandai-hobby.net/item/01_1248/"),   # GM Command Colony Type
+    "4573102628848": (4290, "https://bandai-hobby.net/item/01_3592/"),   # AGE-1 Titus
+    "4573102631985": (5940, "https://bandai-hobby.net/item/01_5687/"),   # ReZEL Commander
+    "4573102631480": (4400, "https://bandai-hobby.net/item/01_5797/"),   # Jesta
+    "4573102635310": (7370, "http://p-bandai.jp/item/item-1000125385"),  # Avalanche Exia Dash
+    "4573102672346": (5500, "https://bandai-hobby.net/item/01_1678/"),   # Launcher/Sword Strike Gundam
+    "4573102672339": (7700, "https://bandai-hobby.net/item/01_1642/"),   # Hi-Nu Gundam
 }
 
 PG_SKU_OVERRIDES = {
