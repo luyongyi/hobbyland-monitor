@@ -75,6 +75,10 @@ RG_SKU_OVERRIDES = {
     "4573102630841": (2750, "https://bandai-hobby.net/item/01_756/"),     # RG Build Strike Full Package
     "4573102688743": (4620, "https://bandai-hobby.net/item/01_5968/"),    # RG Wing Gundam Zero
     "4573102619150": (4950, "https://bandai-hobby.net/item/01_3524/"),    # RG Hi-Nu Gundam
+    "PRE-662897": (3410, "https://bandai-hobby.net/item/01_5085/"),      # RG Force Impulse SpecII preorder
+    "4573102662897": (3410, "https://bandai-hobby.net/item/01_5085/"),   # RG Force Impulse SpecII
+    "PRE-662874": (5280, "https://p-bandai.jp/item/item-1000161849/"),   # RG 00 XN Raiser
+    "PRE-111001": (4950, "https://bandai-hobby.net/item/01_7047/"),      # RG Astray Red Dragon
 }
 
 MG_SKU_OVERRIDES = {
